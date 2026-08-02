@@ -9,6 +9,7 @@ dependencies = [
     "google-genai>=2.14",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.34",
+    "mcp>=1.0",
     "mcp-grafana",
     "opentelemetry-api>=1.42",
     "opentelemetry-sdk>=1.42",

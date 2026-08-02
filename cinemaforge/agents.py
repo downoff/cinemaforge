@@ -12,7 +12,11 @@ metrics, making content decisions data-driven rather than guesswork."""
 import os
 
 from google.adk.agents import Agent, SequentialAgent
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioConnectionParams
+try:
+    from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioConnectionParams
+    _HAS_MCP = True
+except ImportError:
+    _HAS_MCP = False
 
 from . import tools
 
@@ -24,7 +28,7 @@ MODEL = "gemini-2.5-flash"
 
 
 def _grafana_toolset():
-    if not GRAFANA_URL or not GRAFANA_TOKEN:
+    if not _HAS_MCP or not GRAFANA_URL or not GRAFANA_TOKEN:
         return None
     return MCPToolset(
         connection_params=StdioConnectionParams(
