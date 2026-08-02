@@ -26,7 +26,11 @@ https://github.com/downoff/cinemaforge
 
 ## Video URL
 
-_(upload demo/cinemaforge_demo.mp4 to YouTube as Public or Unlisted-but-public-visible, paste link here)_
+https://youtu.be/NVSdqFP61-g
+
+(Unlisted on the Lucius Labs channel. Unlisted satisfies the "publicly visible"
+requirement — anyone with the link can watch without signing in. Private would
+not: judges would be locked out.)
 
 ---
 
