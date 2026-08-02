@@ -1,0 +1,21 @@
+Every content team makes the same decision blind. What do we make next? Most tools answer that with a guess dressed up as a recommendation. CinemaForge answers it with telemetry.
+
+CinemaForge is a production studio built from four Gemini agents, orchestrated by the Google Agent Development Kit. An analyst, a writer, a director, and an S E O specialist, running in sequence, each one handing its work to the next.
+
+The first agent is the important one. Before a single word of script gets written, the analyst opens a connection to the Grafana Cloud M C P server and runs live PromQL against Grafana Cloud Prometheus.
+
+Here is a production starting from one line of brief. The analyst queries first. It asks how many productions this studio has run on this topic, how long they took, which stages succeeded. Those numbers come back from Grafana, and they shape everything downstream.
+
+Watch what it does when there is no data. On a brand new topic, the analyst reports data source unavailable, zero prior productions, and says so plainly in the brief. It will not invent a retention figure to fill the gap. Every number in that brief traces to a query that actually ran.
+
+Then the writer takes the grounded brief and produces a script. The director turns that script into a shot list, camera, lighting, and thumbnail. The S E O agent writes the metadata. About sixty seconds, end to end.
+
+Now the part that makes it a loop. Every one of those runs emits OpenTelemetry metrics straight into Grafana Cloud, tagged with the topic. Production counts, stage events, and the wall clock cost of each individual agent.
+
+This is the real dashboard. The analyst is the slowest agent at twenty four seconds, because it is the one doing the Grafana queries. That is a real measurement of a real trade off, and it is visible because the pipeline instruments itself.
+
+So the next production on this topic queries these exact series back through M C P and finds its own history. The studio measures itself, and the measurement feeds the next run.
+
+One thing I want to be straight about. This reads the pipeline's own telemetry. It has no viewership data, no views, no click through rate, because no audience source is wired in. The agent is instructed to say that rather than guess, and it does.
+
+CinemaForge. Gemini, the Agent Development Kit, Grafana Cloud M C P, and OpenTelemetry, running on Cloud Run. Apache two point zero, and the link is below.

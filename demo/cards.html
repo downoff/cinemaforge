@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text2: #8888aa;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #22c55e;
+  --orange: #f59e0b;
+  --font: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background: var(--bg); }
+.card {
+  width: 1920px; height: 1080px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: var(--font); color: var(--text);
+  background:
+    radial-gradient(ellipse 110% 80% at 50% -10%, rgba(99,102,241,0.16), transparent 60%),
+    var(--bg);
+  padding: 120px;
+  position: relative;
+}
+.card::after {
+  content:''; position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events:none;
+}
+h1 {
+  font-size: 132px; font-weight: 800; letter-spacing: -0.035em;
+  background: linear-gradient(135deg, #a5b4fc, var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+h2 { font-size: 78px; font-weight: 700; letter-spacing:-0.025em; line-height:1.14; text-align:center; }
+.sub { font-size: 40px; color: var(--text2); margin-top: 40px; text-align:center; line-height:1.45; max-width: 1400px; }
+.kicker {
+  font-size: 24px; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--accent2); margin-bottom: 40px; font-weight: 600;
+}
+.row { display:flex; gap:28px; margin-top:76px; z-index:1; }
+.chip {
+  background: var(--surface); border:1px solid var(--border);
+  border-radius: 18px; padding: 30px 38px; min-width: 300px;
+}
+.chip .n { font-size:20px; color:var(--accent2); font-weight:700; letter-spacing:0.12em; }
+.chip .t { font-size:38px; font-weight:700; margin-top:12px; }
+.chip .d { font-size:23px; color:var(--text2); margin-top:10px; }
+.chip.hl { border-color: var(--accent); background: rgba(99,102,241,0.10); }
+.mono { font-family: var(--mono); }
+.stack { display:flex; flex-direction:column; gap:22px; margin-top:64px; z-index:1; }
+.line { display:flex; align-items:center; gap:24px; font-size:34px; }
+.line .b { color: var(--green); font-size:38px; }
+.quote {
+  background: var(--surface); border:1px solid var(--border); border-left:5px solid var(--orange);
+  border-radius: 14px; padding: 42px 50px; font-family: var(--mono);
+  font-size: 32px; line-height:1.6; color:#cfcfe4; max-width:1480px; margin-top:64px; z-index:1;
+}
+.quote .k { color: var(--orange); }
+.foot { position:absolute; bottom:88px; font-size:27px; color:var(--text2); font-family:var(--mono); z-index:1; }
+</style>
+</head>
+<body>
+
+<div class="card" id="c0">
+  <h1>CinemaForge</h1>
+  <div class="sub">A content studio that decides what to make<br>from telemetry, not from a guess.</div>
+  <div class="foot">Gemini &nbsp;·&nbsp; Agent Development Kit &nbsp;·&nbsp; Grafana Cloud MCP &nbsp;·&nbsp; Cloud Run</div>
+</div>
+
+<div class="card" id="c1">
+  <div class="kicker">Sequential agent pipeline</div>
+  <h2>Four agents, one handoff chain</h2>
+  <div class="row">
+    <div class="chip hl"><div class="n">01</div><div class="t">Analyst</div><div class="d">Queries Grafana via MCP</div></div>
+    <div class="chip"><div class="n">02</div><div class="t">Writer</div><div class="d">Script from the brief</div></div>
+    <div class="chip"><div class="n">03</div><div class="t">Director</div><div class="d">Shot list and thumbnail</div></div>
+    <div class="chip"><div class="n">04</div><div class="t">SEO</div><div class="d">Title, tags, metadata</div></div>
+  </div>
+</div>
+
+<div class="card" id="c2">
+  <div class="kicker">The grounding step</div>
+  <h2>The analyst runs live PromQL<br>before a word is written</h2>
+  <div class="quote">
+<span class="k">mcp-grafana</span> · stdio<br>
+<span class="k">query_prometheus</span>(datasource=<span class="k">"grafanacloud-prom"</span>)<br><br>
+sum(productions_completed_total{topic="..."})<br>
+sum(agent_duration_seconds_sum) by (agent)
+  </div>
+</div>
+
+<div class="card" id="c3">
+  <div class="kicker">The honesty guard</div>
+  <h2>When there is no data,<br>it says there is no data</h2>
+  <div class="quote">
+"data_source": <span class="k">"unavailable"</span>,<br>
+"productions_recorded": <span class="k">0</span>,<br>
+"note": "There are NO historical performance<br>&nbsp;&nbsp;figures to cite <span class="k">- do not invent any.</span>"
+  </div>
+  <div class="sub" style="margin-top:52px;font-size:34px">Every figure in a brief traces to a query that actually ran.</div>
+</div>
+
+<div class="card" id="c4">
+  <div class="kicker">Closing the loop</div>
+  <h2>Every run measures itself</h2>
+  <div class="stack">
+    <div class="line"><span class="b">→</span> OpenTelemetry metrics, tagged by topic</div>
+    <div class="line"><span class="b">→</span> Straight into Grafana Cloud Prometheus</div>
+    <div class="line"><span class="b">→</span> The next run queries them back through MCP</div>
+  </div>
+</div>
+
+<div class="card" id="c5">
+  <h1>CinemaForge</h1>
+  <div class="sub" style="margin-top:34px">Open source, Apache 2.0</div>
+  <div class="stack" style="gap:18px;margin-top:52px">
+    <div class="line mono" style="font-size:31px">github.com/downoff/cinemaforge</div>
+    <div class="line mono" style="font-size:31px">cinemaforge-384599766402.us-central1.run.app</div>
+  </div>
+  <div class="foot">Built for Agentic Cinema &nbsp;·&nbsp; Grafana track</div>
+</div>
+
+</body>
+</html>

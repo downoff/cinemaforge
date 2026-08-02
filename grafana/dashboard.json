@@ -1,0 +1,162 @@
+{
+  "title": "CinemaForge — Production Pipeline",
+  "uid": "cinemaforge-pipeline",
+  "tags": ["cinemaforge", "agents", "otel"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Productions completed",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        { "refId": "A", "expr": "sum(productions_completed_total)", "instant": true }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Distinct topics produced",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        { "refId": "A", "expr": "count(count(productions_completed_total) by (topic))", "instant": true }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" }, "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Mean end-to-end production time",
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(productions_duration_seconds_sum) / sum(productions_duration_seconds_count)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" }, "unit": "s", "decimals": 1 },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "bargauge",
+      "title": "Mean latency per agent",
+      "description": "Wall-clock time each sub-agent occupies in the sequential pipeline.",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(agent_duration_seconds_sum) by (agent) / sum(agent_duration_seconds_count) by (agent)",
+          "instant": true,
+          "legendFormat": "{{agent}}"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "continuous-BlPu" }, "unit": "s", "decimals": 1 },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "piechart",
+      "title": "Tool invocations",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(tool_calls_total) by (tool)",
+          "instant": true,
+          "legendFormat": "{{tool}}"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value"] },
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "Pipeline stage events",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(production_events_total) by (stage, status)",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true, "__name__": true, "job": true, "instance": true } } }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Productions by topic",
+      "description": "The Analyst queries these same series back through the Grafana MCP server to ground the next production.",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(productions_completed_total) by (topic)",
+          "legendFormat": "{{topic}}"
+        }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "lineWidth": 2, "fillOpacity": 12, "showPoints": "always" }
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

@@ -5,3 +5,11 @@ __pycache__/
 dist/
 *.egg-info/
 .otlp_token
+
+# demo build intermediates
+demo/work/
+demo/raw/
+demo/qa/
+demo/frames/
+demo/audio/
+demo/cards/*.png
