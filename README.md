@@ -47,7 +47,7 @@ The pipeline's own health metrics (agent latency, tool calls, production through
 
 ```bash
 # Clone and install
-git clone https://github.com/davorperic/cinemaforge.git
+git clone https://github.com/downoff/cinemaforge.git
 cd cinemaforge
 pip install .
 

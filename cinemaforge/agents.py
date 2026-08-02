@@ -20,7 +20,7 @@ from . import tools
 GRAFANA_URL = os.environ.get("GRAFANA_URL", "")
 GRAFANA_TOKEN = os.environ.get("GRAFANA_SERVICE_ACCOUNT_TOKEN", "")
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-2.5-flash"
 
 
 def _grafana_toolset():
