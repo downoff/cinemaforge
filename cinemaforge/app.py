@@ -138,6 +138,10 @@ async def produce_stream(request: Request):
 
     async def event_stream():
         start_time = time.time()
+        # Each sub-agent emits several events; count it once, and treat the
+        # gap since the previous agent finished as its wall-clock duration.
+        seen_agents: set[str] = set()
+        last_agent_ts = start_time
         try:
             async for event in runner.run_async(
                 user_id=user_id, session_id=session_id, new_message=msg
@@ -148,10 +152,21 @@ async def produce_stream(request: Request):
                         if hasattr(p, "text") and p.text
                     )
                     if text and event.author:
+                        now = time.time()
+                        if event.author not in seen_agents:
+                            seen_agents.add(event.author)
+                            metrics.agent_calls.add(
+                                1, {**labels, "agent": event.author}
+                            )
+                            metrics.agent_duration.record(
+                                now - last_agent_ts,
+                                {**labels, "agent": event.author},
+                            )
+                            last_agent_ts = now
                         data = json.dumps({
                             "agent": event.author,
                             "content": text,
-                            "timestamp": time.time(),
+                            "timestamp": now,
                         })
                         yield f"data: {data}\n\n"
         except Exception as exc:

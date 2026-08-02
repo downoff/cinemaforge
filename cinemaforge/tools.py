@@ -4,6 +4,7 @@ Each tool is a plain function — ADK auto-wraps them as FunctionTool.
 Docstrings become the tool description the LLM sees."""
 
 import json
+import math
 import os
 import time
 from typing import Optional
@@ -65,33 +66,46 @@ def analyze_content_performance(
     safe_topic = topic.replace('"', '\\"')
     window = time_range if time_range.endswith(("h", "d", "w")) else "7d"
 
+    # Use the counter's instant value, NOT increase()/rate(). Those need two
+    # samples inside the window, so a topic produced for the first time
+    # reports 0 prior runs even though its own run is already recorded -
+    # which reads as "no history" when history exists.
     runs = _query_prometheus(
-        f'sum(increase(productions_completed_total{{topic="{safe_topic}"}}[{window}]))'
+        f'sum(productions_completed_total{{topic="{safe_topic}"}})'
     )
+    # Not topic-filtered: production_events_total is emitted by
+    # log_production_event, which the agents call without knowing the run's
+    # topic label. These counts are pipeline-wide, and are reported as such.
     stages = _query_prometheus(
-        f'sum(increase(production_events_total{{topic="{safe_topic}"}}[{window}])) by (stage, status)'
+        "sum(production_events_total) by (stage, status)"
     )
     duration = _query_prometheus(
-        f'histogram_quantile(0.5, sum(rate('
-        f'productions_duration_seconds_bucket{{topic="{safe_topic}"}}[{window}])) by (le))'
+        f'sum(productions_duration_seconds_sum{{topic="{safe_topic}"}}) / '
+        f'sum(productions_duration_seconds_count{{topic="{safe_topic}"}})'
     )
 
     def _scalar(series):
+        """Instant-vector value as a float, or None.
+
+        Prometheus returns NaN/Inf as the strings "NaN"/"+Inf"; float() parses
+        them happily and they then serialise to invalid JSON, so screen them
+        out explicitly rather than passing a NaN to the model as if measured.
+        """
         if not series:
             return None
         try:
-            return round(float(series[0]["value"][1]), 2)
+            v = float(series[0]["value"][1])
         except (KeyError, IndexError, ValueError, TypeError):
             return None
+        return round(v, 2) if math.isfinite(v) else None
 
     prior_runs = _scalar(runs)
 
     if prior_runs is None:
         result = {
             "topic": topic,
-            "time_range": window,
             "data_source": "unavailable",
-            "prior_productions": 0,
+            "productions_recorded": 0,
             "note": (
                 "No telemetry found for this topic in Grafana Cloud. Either "
                 "Grafana is not configured or this studio has not produced "
@@ -107,17 +121,18 @@ def analyze_content_performance(
             stage_breakdown[key] = _scalar([s])
         result = {
             "topic": topic,
-            "time_range": window,
             "data_source": "grafana_cloud_prometheus",
             "datasource_uid": PROM_UID,
-            "prior_productions": prior_runs,
-            "median_production_seconds": _scalar(duration),
-            "stage_events": stage_breakdown,
+            "productions_recorded": prior_runs,
+            "mean_production_seconds": _scalar(duration),
+            "stage_events_all_topics": stage_breakdown,
             "note": (
-                "These are real measured values from this studio's own "
-                "pipeline telemetry. They describe production throughput and "
-                "reliability, not audience response - this studio does not "
-                "yet ingest viewership data."
+                "Real measured values from this studio's own pipeline "
+                "telemetry, cumulative since the counters began. They "
+                "describe production throughput and reliability, NOT audience "
+                "response - this studio ingests no viewership data, so there "
+                "are no views, retention, CTR or scheduling figures here and "
+                "none should be inferred."
             ),
         }
 
