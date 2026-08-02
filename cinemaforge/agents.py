@@ -9,15 +9,28 @@ Four specialized agents orchestrated by a SequentialAgent:
 The Analyst agent uses Grafana MCP tools to query real production
 metrics, making content decisions data-driven rather than guesswork."""
 
+import logging
 import os
 
 from google.adk.agents import Agent, SequentialAgent
+logger = logging.getLogger(__name__)
+
+# Import error is recorded rather than swallowed. A silently-missing MCP
+# toolset is the exact failure this project already shipped once: the agent
+# still runs, just without the Grafana tools, and nothing says so.
+MCP_IMPORT_ERROR: str | None = None
 try:
-    from google.adk.tools.mcp_tool.mcp_toolset import McpToolset, StdioConnectionParams
+    from google.adk.tools.mcp_tool.mcp_toolset import StdioConnectionParams
+    try:
+        from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
+    except ImportError:  # older ADK spells it MCPToolset
+        from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset as McpToolset
     from mcp import StdioServerParameters
     _HAS_MCP = True
-except ImportError:
+except Exception as _exc:
     _HAS_MCP = False
+    MCP_IMPORT_ERROR = f"{type(_exc).__name__}: {_exc}"
+    logger.error("Grafana MCP unavailable, analyst will run without it: %s", MCP_IMPORT_ERROR)
 
 from . import tools
 

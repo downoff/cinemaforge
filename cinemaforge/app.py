@@ -204,5 +204,6 @@ async def health():
         "grafana_reachable": grafana_reachable,
         "grafana_error": grafana_error,
         "grafana_mcp_attached": agents.GRAFANA_LIVE,
+        "mcp_import_error": agents.MCP_IMPORT_ERROR,
         "otel_export_configured": bool(os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")),
     }
