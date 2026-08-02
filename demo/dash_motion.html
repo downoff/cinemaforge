@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+/* The real Grafana dashboard screenshot, given a slow continuous drift so the
+   24s it occupies is no longer a frozen frame. Transform-only, composited. */
+:root{--bg-1:#0a0f1a}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg-1);width:1920px;height:1080px;overflow:hidden}
+.stage{position:relative;width:1920px;height:1080px;overflow:hidden;
+  background:linear-gradient(180deg,#0a0f1a 0%,#0e1422 100%)}
+.shot{position:absolute;top:50%;left:50%;width:2040px;
+  transform:translate(-50%,-50%);
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+  animation:glide 30s cubic-bezier(.22,.61,.36,1) infinite alternate;
+  will-change:transform}
+@keyframes glide{
+  0%  {transform:translate(-50.9%,-49.2%) scale(1.000)}
+  100%{transform:translate(-49.1%,-50.8%) scale(1.055)}
+}
+/* Vignette keeps the eye centred and hides the crop edges */
+.vig{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(72% 64% at 50% 50%,transparent 42%,rgba(7,9,15,.55) 100%)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <img class="shot" src="cards/grafana_dash.jpg" alt="">
+  <div class="vig"></div>
+</div>
+</body>
+</html>
