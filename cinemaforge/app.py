@@ -99,6 +99,7 @@ async def produce(request: Request):
     duration = time.time() - start_time
     metrics.productions_completed.add(1, labels)
     metrics.production_duration.record(duration, labels)
+    metrics.flush()
 
     return {
         "session_id": session_id,
@@ -160,6 +161,7 @@ async def produce_stream(request: Request):
         duration = time.time() - start_time
         metrics.productions_completed.add(1, labels)
         metrics.production_duration.record(duration, labels)
+        metrics.flush()
         done = json.dumps({
             "done": True, "duration": round(duration, 1), "topic": topic,
         })

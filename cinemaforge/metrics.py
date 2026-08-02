@@ -40,3 +40,17 @@ tool_calls = meter.create_counter("tool.calls", description="Tool invocations by
 tool_duration = meter.create_histogram("tool.duration_seconds", description="Per-tool execution time")
 production_events = meter.create_counter("production.events", description="Pipeline events by stage and status")
 token_usage = meter.create_counter("llm.tokens", description="LLM token usage by type")
+
+
+def flush(timeout_millis: int = 10_000) -> bool:
+    """Force-export buffered metrics.
+
+    Cloud Run throttles a container's CPU once a request finishes, so the
+    30s periodic exporter frequently never runs and the run's metrics are
+    lost. Call this at the end of a production so the data actually reaches
+    Grafana Cloud.
+    """
+    try:
+        return provider.force_flush(timeout_millis=timeout_millis)
+    except Exception:
+        return False
