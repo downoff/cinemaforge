@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CinemaForge — AI Content Production Studio</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a28;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text2: #8888aa;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #22c55e;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header .badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.input-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.input-section label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.input-section textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  resize: vertical;
+  min-height: 100px;
+  outline: none;
+}
+.input-section textarea:focus { border-color: var(--accent); }
+.input-section textarea::placeholder { color: var(--text2); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-row { display: flex; gap: 0.75rem; margin-top: 1rem; }
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+@media (max-width: 800px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .pipeline { grid-template-columns: 1fr; } }
+
+.stage {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: border-color 0.3s;
+}
+.stage.active { border-color: var(--accent); }
+.stage.done { border-color: var(--green); }
+.stage-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.stage-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  background: var(--surface2);
+}
+.stage.active .stage-icon { background: var(--accent); }
+.stage.done .stage-icon { background: var(--green); }
+.stage-name { font-weight: 600; font-size: 0.9rem; }
+.stage-status {
+  font-size: 0.75rem;
+  color: var(--text2);
+  margin-top: 0.25rem;
+}
+.stage.active .stage-status { color: var(--accent2); }
+.stage.done .stage-status { color: var(--green); }
+
+.output-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.output-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.output-tab {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font);
+}
+.output-tab:hover { color: var(--text); }
+.output-tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+.output-content {
+  padding: 1.5rem;
+  min-height: 200px;
+  max-height: 500px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.output-content:empty::after {
+  content: 'Waiting for production to start...';
+  color: var(--text2);
+  font-style: italic;
+  font-family: var(--font);
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  min-width: 120px;
+}
+.stat-label { font-size: 0.7rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-value { font-size: 1.25rem; font-weight: 700; margin-top: 0.25rem; }
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>CinemaForge</h1>
+  <span class="badge">Powered by Gemini + Google Cloud + Grafana</span>
+</div>
+
+<div class="main">
+  <div class="input-section">
+    <label>Production Brief</label>
+    <textarea id="brief" placeholder="Describe your video: topic, target audience, style, duration...&#10;&#10;Example: Create a 2-minute motivational video about overcoming creative burnout, targeting independent filmmakers and content creators. Style: cinematic, warm, personal."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="produce-btn" onclick="startProduction()">
+        Start Production
+      </button>
+    </div>
+  </div>
+
+  <div class="pipeline" id="pipeline">
+    <div class="stage" id="stage-analyst">
+      <div class="stage-header">
+        <div class="stage-icon">1</div>
+        <div>
+          <div class="stage-name">Analyst</div>
+          <div class="stage-status">Grafana analytics</div>
+        </div>
+      </div>
+    </div>
+    <div class="stage" id="stage-writer">
+      <div class="stage-header">
+        <div class="stage-icon">2</div>
+        <div>
+          <div class="stage-name">Writer</div>
+          <div class="stage-status">Script generation</div>
+        </div>
+      </div>
+    </div>
+    <div class="stage" id="stage-director">
+      <div class="stage-header">
+        <div class="stage-icon">3</div>
+        <div>
+          <div class="stage-name">Director</div>
+          <div class="stage-status">Visual planning</div>
+        </div>
+      </div>
+    </div>
+    <div class="stage" id="stage-seo">
+      <div class="stage-header">
+        <div class="stage-icon">4</div>
+        <div>
+          <div class="stage-name">SEO</div>
+          <div class="stage-status">Metadata optimization</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="output-section" id="output-section" style="display:none">
+    <div class="output-tabs" id="tabs"></div>
+    <div class="output-content" id="output"></div>
+  </div>
+
+  <div class="stats" id="stats" style="display:none">
+    <div class="stat">
+      <div class="stat-label">Duration</div>
+      <div class="stat-value" id="stat-duration">--</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Agents</div>
+      <div class="stat-value" id="stat-agents">4</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Status</div>
+      <div class="stat-value" id="stat-status">Ready</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const AGENTS = ['analyst', 'writer', 'director', 'seo'];
+const LABELS = {analyst: 'Analytics Brief', writer: 'Script', director: 'Visual Plan', seo: 'Metadata'};
+let outputs = {};
+let activeTab = null;
+
+function resetStages() {
+  AGENTS.forEach(a => {
+    const el = document.getElementById('stage-' + a);
+    el.className = 'stage';
+    el.querySelector('.stage-status').textContent =
+      {analyst:'Grafana analytics', writer:'Script generation', director:'Visual planning', seo:'Metadata optimization'}[a];
+  });
+  outputs = {};
+  activeTab = null;
+}
+
+function setActive(agent) {
+  AGENTS.forEach(a => {
+    const el = document.getElementById('stage-' + a);
+    if (a === agent) {
+      el.className = 'stage active';
+      el.querySelector('.stage-status').innerHTML = '<span class="spinner"></span> Working...';
+    }
+  });
+}
+
+function setDone(agent) {
+  const el = document.getElementById('stage-' + agent);
+  el.className = 'stage done';
+  el.querySelector('.stage-status').textContent = 'Complete';
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  Object.keys(outputs).forEach(agent => {
+    const btn = document.createElement('button');
+    btn.className = 'output-tab' + (agent === activeTab ? ' active' : '');
+    btn.textContent = LABELS[agent] || agent;
+    btn.onclick = () => { activeTab = agent; renderTabs(); };
+    tabs.appendChild(btn);
+  });
+  document.getElementById('output').textContent = outputs[activeTab] || '';
+}
+
+async function startProduction() {
+  const brief = document.getElementById('brief').value.trim();
+  if (!brief) return;
+
+  const btn = document.getElementById('produce-btn');
+  btn.disabled = true;
+  btn.textContent = 'Producing...';
+
+  resetStages();
+  document.getElementById('output-section').style.display = '';
+  document.getElementById('stats').style.display = '';
+  document.getElementById('stat-status').textContent = 'Running';
+  document.getElementById('stat-status').style.color = 'var(--orange)';
+  document.getElementById('stat-duration').textContent = '--';
+
+  const startTime = Date.now();
+  const timer = setInterval(() => {
+    document.getElementById('stat-duration').textContent =
+      ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+  }, 100);
+
+  try {
+    const resp = await fetch('/api/produce/stream', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({brief}),
+    });
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let lastAgent = null;
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.done) {
+            clearInterval(timer);
+            document.getElementById('stat-duration').textContent = data.duration + 's';
+            document.getElementById('stat-status').textContent = 'Complete';
+            document.getElementById('stat-status').style.color = 'var(--green)';
+            if (lastAgent) setDone(lastAgent);
+            continue;
+          }
+          const agent = data.agent;
+          if (agent && AGENTS.includes(agent)) {
+            if (lastAgent && lastAgent !== agent) setDone(lastAgent);
+            setActive(agent);
+            lastAgent = agent;
+            outputs[agent] = data.content;
+            if (!activeTab) activeTab = agent;
+            renderTabs();
+          }
+        } catch (e) {}
+      }
+    }
+  } catch (err) {
+    document.getElementById('stat-status').textContent = 'Error';
+    document.getElementById('stat-status').style.color = 'var(--red)';
+    clearInterval(timer);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Start Production';
+}
+</script>
+</body>
+</html>
