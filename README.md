@@ -81,7 +81,7 @@ gcloud run deploy cinemaforge \
 ## Tech Stack
 
 - **Google ADK 2.6** — Multi-agent orchestration (SequentialAgent)
-- **Gemini 2.0 Flash** — LLM backbone for all four agents
+- **Gemini 3.6 Flash** — LLM backbone for all four agents
 - **Grafana Cloud MCP Server** — 60+ tools for querying dashboards, Prometheus, Loki
 - **OpenTelemetry** — Pipeline observability exported to Grafana Cloud
 - **FastAPI** — Web server with SSE streaming
