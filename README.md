@@ -39,9 +39,15 @@ Production Brief
 All stages emit OTel metrics ──► Grafana Cloud
 ```
 
-**Analyst** queries Grafana dashboards for historical content performance — views, retention, CTR — so every creative decision is data-driven. **Writer** takes those insights and produces a retention-optimized script with hook/body/CTA structure. **Director** translates the script into scene-by-scene visual plans with camera, lighting, and thumbnail concepts. **SEO** optimizes title, description, tags, and scheduling using the original analytics data.
+**Analyst** connects to the [Grafana Cloud MCP Server](https://github.com/grafana/mcp-grafana) over stdio and runs live PromQL against Grafana Cloud Prometheus. **Writer** takes the resulting brief and produces a retention-optimized script with hook/body/CTA structure. **Director** translates the script into scene-by-scene visual plans with camera, lighting, and thumbnail concepts. **SEO** optimizes title, description, tags, and scheduling.
 
-The pipeline's own health metrics (agent latency, tool calls, production throughput) are exported via OpenTelemetry to Grafana Cloud, creating a feedback loop: the same dashboards the Analyst queries also monitor the pipeline itself.
+### The feedback loop
+
+Every production emits OpenTelemetry metrics — agent latency, tool calls, stage events, throughput — into Grafana Cloud, tagged with a `topic` label derived from the brief. A later production on the same topic queries those metrics back out through MCP. The studio measures itself, and the measurements feed the next run.
+
+### What the data is, and isn't
+
+The Analyst reads **this pipeline's own production telemetry** — how many prior runs on a topic, how long they took, which stages succeeded. It does **not** have viewership data: no views, retention, or CTR, because the studio does not ingest an audience analytics source. `analyze_content_performance` returns an explicit `data_source` field of either `grafana_cloud_prometheus` or `unavailable`, and the Analyst is instructed to report "no historical data" rather than fill the gap with plausible numbers. Every figure in a brief traces to a tool call that actually ran.
 
 ## Quick Start
 
@@ -65,8 +71,24 @@ uvicorn cinemaforge.app:app --reload --port 8080
 | Variable | Required | Description |
 |---|---|---|
 | `GOOGLE_API_KEY` | Yes | Gemini API key |
-| `GRAFANA_URL` | Yes | Grafana Cloud instance URL |
-| `GRAFANA_SERVICE_ACCOUNT_TOKEN` | Yes | Grafana service account token |
+| `GRAFANA_URL` | Yes | Grafana Cloud instance URL, e.g. `https://yourstack.grafana.net` |
+| `GRAFANA_SERVICE_ACCOUNT_TOKEN` | Yes | Grafana service account token (`glsa_…`), Editor role. Used by the MCP server to **read**. |
+| `GRAFANA_PROM_UID` | No | Prometheus datasource uid (default `grafanacloud-prom`) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | Grafana Cloud OTLP gateway. Without it, metrics fall back to the console exporter and the feedback loop stays open. |
+| `OTEL_EXPORTER_OTLP_HEADERS` | No | `Authorization=Basic <base64 of instanceID:token>`. Must be a **Cloud Access Policy token** with `metrics:write` — a `glsa_` service-account token is rejected by the OTLP gateway. |
+
+> The read path and the write path use **different credentials**. The service-account token reads through MCP; OTLP ingestion needs a Cloud Access Policy token. Configuring only the first gives you a working Analyst that correctly reports having no data to read.
+
+Check what is actually live at `/api/health` — it performs a real authenticated round-trip to Grafana rather than just checking that variables are set:
+
+```json
+{
+  "grafana_configured": true,
+  "grafana_reachable": true,
+  "grafana_mcp_attached": true,
+  "otel_export_configured": false
+}
+```
 
 ## Deploy to Cloud Run
 

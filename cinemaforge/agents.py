@@ -13,7 +13,8 @@ import os
 
 from google.adk.agents import Agent, SequentialAgent
 try:
-    from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioConnectionParams
+    from google.adk.tools.mcp_tool.mcp_toolset import McpToolset, StdioConnectionParams
+    from mcp import StdioServerParameters
     _HAS_MCP = True
 except ImportError:
     _HAS_MCP = False
@@ -24,47 +25,102 @@ from . import tools
 GRAFANA_URL = os.environ.get("GRAFANA_URL", "")
 GRAFANA_TOKEN = os.environ.get("GRAFANA_SERVICE_ACCOUNT_TOKEN", "")
 
+# Prometheus datasource backing Grafana Cloud, where this pipeline's own
+# OpenTelemetry metrics land. The Analyst reads them back out.
+PROM_DATASOURCE_UID = os.environ.get("GRAFANA_PROM_UID", "grafanacloud-prom")
+
 MODEL = "gemini-3.6-flash"
 
+# Subset of the Grafana MCP server's 73 tools that the Analyst needs. Exposing
+# all of them buries the model in irrelevant choices (incidents, alerting,
+# OnCall) and measurably degrades tool selection.
+_GRAFANA_TOOL_FILTER = [
+    "list_datasources",
+    "query_prometheus",
+    "list_prometheus_metric_names",
+    "list_prometheus_label_names",
+    "search_dashboards",
+]
 
-def _grafana_toolset():
+
+def grafana_toolset():
+    """Grafana Cloud MCP server, or None when unconfigured.
+
+    Uses the `mcp-grafana` console script from the official grafana/mcp-grafana
+    package (a Python-wheel-packaged Go binary). The wrapper repairs the
+    binary's executable bit on first run, so this works inside the container
+    without uv.
+    """
     if not _HAS_MCP or not GRAFANA_URL or not GRAFANA_TOKEN:
         return None
-    return MCPToolset(
+    return McpToolset(
         connection_params=StdioConnectionParams(
-            command="uvx",
-            args=["mcp-grafana"],
-            env={
-                "GRAFANA_URL": GRAFANA_URL,
-                "GRAFANA_SERVICE_ACCOUNT_TOKEN": GRAFANA_TOKEN,
-            },
+            server_params=StdioServerParameters(
+                command="mcp-grafana",
+                args=[],
+                env={
+                    "GRAFANA_URL": GRAFANA_URL,
+                    "GRAFANA_SERVICE_ACCOUNT_TOKEN": GRAFANA_TOKEN,
+                },
+            ),
         ),
+        tool_filter=_GRAFANA_TOOL_FILTER,
     )
+
+
+_grafana = grafana_toolset()
+GRAFANA_LIVE = _grafana is not None
+
+_analyst_tools = [tools.analyze_content_performance, tools.log_production_event]
+if _grafana is not None:
+    _analyst_tools.append(_grafana)
 
 
 analyst_agent = Agent(
     name="analyst",
     model=MODEL,
     description="Content performance analyst that queries Grafana dashboards.",
-    instruction="""You are a content performance analyst for a video production studio.
-Your job is to analyze past content performance data and provide actionable insights
-to guide the creative team.
+    instruction=f"""You are a content performance analyst for a video production studio.
+You ground creative decisions in real telemetry from Grafana Cloud.
 
-When given a production brief:
-1. Use analyze_content_performance to check how similar topics have performed
-2. If Grafana MCP tools are available, query production dashboards for deeper metrics
-3. Summarize your findings as a concise analytics brief:
-   - What worked well for this topic historically
-   - What angles/formats to avoid
-   - Optimal scheduling window
-   - Specific data points that should inform the script
+Every production this studio runs emits OpenTelemetry metrics into Grafana
+Cloud's Prometheus (datasource uid `{PROM_DATASOURCE_UID}`). Your job is to
+query those metrics back out and turn them into a brief the creative team
+can act on.
 
-Store your analysis in the output. Be specific and data-driven, not generic.
-Your recommendations directly shape the script and visuals.""",
-    tools=[
-        tools.analyze_content_performance,
-        tools.log_production_event,
-    ],
+STEP 1 - Query the real data. Use `query_prometheus` against datasource uid
+`{PROM_DATASOURCE_UID}`. The pipeline's own metrics are:
+  - `productions_started_total`      counter, productions initiated
+  - `productions_completed_total`    counter, productions finished
+  - `productions_duration_seconds`   histogram, end-to-end production time
+  - `agent_calls_total`              counter, labelled by `agent`
+  - `agent_duration_seconds`         histogram, labelled by `agent`
+  - `tool_calls_total`               counter, labelled by `tool`
+  - `production_events_total`        counter, labelled by `stage` and `status`
+Useful starting queries:
+  - `sum(production_events_total)  by (stage, status)`
+  - `histogram_quantile(0.95, sum(rate(agent_duration_seconds_bucket[24h])) by (le, agent))`
+  - `sum(rate(productions_completed_total[24h]))`
+If a query returns no series, say so plainly. Do NOT invent numbers.
+
+STEP 2 - Call `analyze_content_performance` for the topic-level view.
+Read its `data_source` field. If it says `unavailable`, the studio has no
+historical data for this topic yet: report that honestly and base your
+recommendations on the pipeline telemetry plus general craft principles,
+clearly labelled as such.
+
+STEP 3 - Write the analytics brief:
+  - Observed pipeline health (from the Prometheus queries you actually ran)
+  - What the topic-level data supports, if anything
+  - Recommended angle and what to avoid
+  - Optimal scheduling window, only if the data supports one
+  - The specific numbers that should inform the script
+
+HARD RULE: every figure you cite must come from a tool call you actually made
+in this session. If you did not measure it, do not state it. Saying "no
+historical data available for this topic" is a correct and valuable answer.
+Never fabricate a metric to make the brief look complete.""",
+    tools=_analyst_tools,
     output_key="analytics_brief",
 )
 
@@ -123,10 +179,12 @@ Read the script from the writer (in session state as 'script') and create:
    - Overall mood/genre for the background score
    - Any tempo changes that match the script beats
 
-Use generate_scene_descriptions to structure your output.
+Call build_scene_scaffold first to get consistent timings and a camera
+rotation, then fill in every field it leaves null. Never return the scaffold
+unchanged — the visual writing is yours.
 Think cinematically — every frame should serve the story.""",
     tools=[
-        tools.generate_scene_descriptions,
+        tools.build_scene_scaffold,
         tools.log_production_event,
     ],
     output_key="visual_plan",
