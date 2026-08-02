@@ -111,21 +111,25 @@ async def produce_stream(request: Request):
 
     async def event_stream():
         start_time = time.time()
-        async for event in runner.run_async(
-            user_id=user_id, session_id=session_id, new_message=msg
-        ):
-            if event.content and event.content.parts:
-                text = "".join(
-                    p.text for p in event.content.parts
-                    if hasattr(p, "text") and p.text
-                )
-                if text and event.author:
-                    data = json.dumps({
-                        "agent": event.author,
-                        "content": text,
-                        "timestamp": time.time(),
-                    })
-                    yield f"data: {data}\n\n"
+        try:
+            async for event in runner.run_async(
+                user_id=user_id, session_id=session_id, new_message=msg
+            ):
+                if event.content and event.content.parts:
+                    text = "".join(
+                        p.text for p in event.content.parts
+                        if hasattr(p, "text") and p.text
+                    )
+                    if text and event.author:
+                        data = json.dumps({
+                            "agent": event.author,
+                            "content": text,
+                            "timestamp": time.time(),
+                        })
+                        yield f"data: {data}\n\n"
+        except Exception as exc:
+            err = json.dumps({"error": str(exc)})
+            yield f"data: {err}\n\n"
 
         duration = time.time() - start_time
         metrics.productions_completed.add(1)
@@ -138,4 +142,11 @@ async def produce_stream(request: Request):
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "version": "0.1.0"}
+    has_gemini = bool(os.environ.get("GOOGLE_API_KEY"))
+    has_grafana = bool(os.environ.get("GRAFANA_URL")) and bool(os.environ.get("GRAFANA_SERVICE_ACCOUNT_TOKEN"))
+    return {
+        "status": "ok",
+        "version": "0.1.0",
+        "gemini_configured": has_gemini,
+        "grafana_configured": has_grafana,
+    }

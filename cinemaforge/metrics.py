@@ -1,7 +1,4 @@
-"""OpenTelemetry metrics for production pipeline observability.
-
-Emits metrics to Grafana Cloud via OTLP. These metrics power the
-production health dashboards that the Analyst agent queries."""
+"""OpenTelemetry metrics for production pipeline observability."""
 
 import os
 
@@ -15,9 +12,21 @@ from opentelemetry.sdk.resources import Resource
 
 resource = Resource.create({"service.name": "cinemaforge", "service.version": "0.1.0"})
 
-_exporter = ConsoleMetricExporter()
-_reader = PeriodicExportingMetricReader(_exporter, export_interval_millis=60_000)
-provider = MeterProvider(resource=resource, metric_readers=[_reader])
+_readers = []
+
+_otlp_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+if _otlp_endpoint:
+    from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+    _readers.append(PeriodicExportingMetricReader(
+        OTLPMetricExporter(endpoint=f"{_otlp_endpoint}/v1/metrics"),
+        export_interval_millis=30_000,
+    ))
+else:
+    _readers.append(PeriodicExportingMetricReader(
+        ConsoleMetricExporter(), export_interval_millis=60_000,
+    ))
+
+provider = MeterProvider(resource=resource, metric_readers=_readers)
 otel_metrics.set_meter_provider(provider)
 
 meter = otel_metrics.get_meter("cinemaforge.pipeline")
