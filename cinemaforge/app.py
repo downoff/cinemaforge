@@ -25,7 +25,7 @@ from google.genai import types
 from . import agents, metrics
 from .agents import production_pipeline
 
-app = FastAPI(title="CinemaForge", version="0.1.0")
+app = FastAPI(title="CinemaForge", version="0.3.0")
 
 WEB_DIR = Path(__file__).parent.parent / "web"
 
@@ -214,7 +214,7 @@ async def health():
 
     return {
         "status": "ok",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "model": agents.MODEL,
         "gemini_configured": has_gemini,
         "grafana_configured": grafana_configured,
