@@ -5,11 +5,11 @@
 <style>
 /* The real Grafana dashboard screenshot, given a slow continuous drift so the
    24s it occupies is no longer a frozen frame. Transform-only, composited. */
-:root{--bg-1:#0a0f1a}
+:root{--bg-1:#14120F}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:var(--bg-1);width:1920px;height:1080px;overflow:hidden}
 .stage{position:relative;width:1920px;height:1080px;overflow:hidden;
-  background:linear-gradient(180deg,#0a0f1a 0%,#0e1422 100%)}
+  background:radial-gradient(120% 100% at 50% 30%,#181510 0%,#14120F 60%,#100E0B 100%)}
 /* The source screenshot is only 1568x775. It was previously laid out at
    2040px, which both upscaled it 1.3x and pushed 60px off each side before
    the animation even started; the push then took ~116px. That cropped the
@@ -35,7 +35,7 @@ html,body{background:var(--bg-1);width:1920px;height:1080px;overflow:hidden}
 </head>
 <body>
 <div class="stage">
-  <img class="shot" src="cards/grafana_dash.jpg" alt="">
+  <img class="shot" src="cards/grafana_dash_2x.png" alt="">
   <div class="vig"></div>
 </div>
 </body>

@@ -2,169 +2,173 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* Tokens lifted verbatim from the Lucius AI Design System (colors_and_type.css).
-   Motion follows its stated rule: quiet, fintech-y, no bounces. */
+/* CinemaForge demo title cards — same design system as the app itself:
+   grading-suite dark, tungsten, paper, Courier. The video and the product
+   have to read as one world.
+   Motion is transform/opacity only (compositor-interpolated), which is what
+   fixed the ffmpeg-zoompan judder in v2. Keep it that way. */
 :root{
-  --bg-0:#07090f; --bg-1:#0a0f1a; --bg-2:#0e1422; --bg-3:#131b2e;
-  --fg-1:#f5f7fb; --fg-2:#c8cfdd; --fg-3:#8a93a6; --fg-4:#5b637a;
-  --border-1:rgba(255,255,255,.06); --border-2:rgba(255,255,255,.10);
-  --brand-violet:#7c5cff; --brand-indigo:#5b6cff; --brand-fuchsia:#b14cff;
-  --gradient-brand:linear-gradient(135deg,#5b6cff 0%,#7c5cff 45%,#b14cff 100%);
-  --success:#10b981; --warning:#f5a524;
-  --font-sans:'Inter',ui-sans-serif,system-ui,sans-serif;
-  --font-mono:'JetBrains Mono',ui-monospace,monospace;
-  --tracking-display:-.035em; --tracking-overline:.16em;
+  --screen:#14120F; --room:#1C1915; --hairline:#332D24;
+  --bone:#EAE3D6; --faded:#97907F;
+  --tungsten:#E5A13B; --tally:#E0442E; --print:#74A98C;
+  --paper:#F2ECDF; --ink:#2A2620;
+  --ui:'Archivo',ui-sans-serif,system-ui,sans-serif;
+  --mono:'Courier Prime','Courier New',monospace;
   --ease-out:cubic-bezier(.22,.61,.36,1);
-  --radius-lg:14px; --radius-xl:20px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{background:var(--bg-1);width:1920px;height:1080px;overflow:hidden}
+html,body{background:var(--screen);width:1920px;height:1080px;overflow:hidden}
 
 .stage{width:1920px;height:1080px;position:relative;display:flex;
   flex-direction:column;align-items:center;justify-content:center;
-  font-family:var(--font-sans);color:var(--fg-1);padding:110px;
-  background:linear-gradient(180deg,#0a0f1a 0%,#0e1422 100%);
+  font-family:var(--ui);color:var(--bone);padding:110px;
+  background:radial-gradient(120% 100% at 50% 30%,#181510 0%,#14120F 55%,#100E0B 100%);
   -webkit-font-smoothing:antialiased}
 
-/* Brand hero radial, slowly alive. Transform-only → compositor-interpolated,
-   continuous, never integer-steps the way ffmpeg zoompan does. */
+/* Tungsten practicals, slowly alive — transform-only. */
 .stage::before{content:'';position:absolute;inset:-30%;
   background:
-    radial-gradient(52% 46% at 78% 16%,rgba(177,76,255,.26),transparent 58%),
-    radial-gradient(48% 42% at 18% 84%,rgba(91,108,255,.20),transparent 62%);
+    radial-gradient(46% 40% at 76% 18%,rgba(229,161,59,.13),transparent 60%),
+    radial-gradient(42% 38% at 20% 86%,rgba(229,161,59,.07),transparent 62%);
   animation:drift 34s var(--ease-out) infinite alternate;will-change:transform}
 @keyframes drift{
   0%{transform:translate3d(-2.2%,-1.6%,0) scale(1.00)}
   100%{transform:translate3d(2.2%,1.6%,0) scale(1.14)}}
 
-.grid{position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
-  background-size:72px 72px;animation:pan 48s linear infinite}
-@keyframes pan{from{background-position:0 0}to{background-position:72px 72px}}
+/* Film grain — static texture, the compositor only sees opacity. */
+.grain{position:absolute;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E")}
 
 .inner{position:relative;z-index:2;display:flex;flex-direction:column;
   align-items:center;justify-content:center;width:100%;
   animation:breathe 38s var(--ease-out) infinite alternate;will-change:transform}
 @keyframes breathe{0%{transform:scale(1.000)}100%{transform:scale(1.028)}}
 
-h1{font-size:132px;font-weight:800;letter-spacing:var(--tracking-display);
-  line-height:1.05;background:var(--gradient-brand);background-size:200% 100%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:sheen 11s var(--ease-out) infinite}
-@keyframes sheen{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+h1{font-size:118px;font-weight:800;font-stretch:125%;letter-spacing:.10em;
+  line-height:1.05;color:var(--bone);text-align:center}
+h1 span{color:var(--tungsten)}
+h2{font-size:74px;font-weight:750;letter-spacing:.005em;
+  line-height:1.16;text-align:center;color:var(--bone)}
+.sub{font-size:37px;color:var(--faded);margin-top:38px;text-align:center;
+  line-height:1.5;max-width:1400px}
+.kicker{font-family:var(--mono);font-size:23px;letter-spacing:.30em;
+  text-transform:uppercase;color:var(--tungsten);margin-bottom:40px}
 
-h2{font-size:78px;font-weight:700;letter-spacing:var(--tracking-display);
-  line-height:1.14;text-align:center;color:var(--fg-1)}
-.sub{font-size:38px;color:var(--fg-2);margin-top:36px;text-align:center;
-  line-height:1.45;max-width:1400px}
-.kicker{font-size:22px;letter-spacing:var(--tracking-overline);
-  text-transform:uppercase;color:var(--fg-3);margin-bottom:36px;font-weight:500}
+.logo{margin-bottom:48px}
 
-.logo{margin-bottom:44px}
+/* The crew — styled exactly like the app's stage cards. */
+.row{display:flex;gap:24px;margin-top:72px;align-items:center}
+.chip{background:var(--room);border:1px solid var(--hairline);
+  border-radius:12px;padding:30px 36px;min-width:300px;text-align:left;position:relative}
+.chip .n{font-family:var(--mono);font-size:19px;letter-spacing:.14em;color:var(--faded)}
+.chip .t{font-size:38px;font-weight:700;margin-top:10px;letter-spacing:-.005em}
+.chip .d{font-size:21px;color:var(--faded);margin-top:8px;line-height:1.4}
+.chip .tally{position:absolute;top:30px;right:30px;width:13px;height:13px;border-radius:50%;
+  border:2px solid var(--hairline)}
+.chip.hl{border-color:rgba(229,161,59,.55)}
+.chip.hl .tally{border-color:var(--tally);background:var(--tally);
+  box-shadow:0 0 12px rgba(224,68,46,.8);animation:blink 1.1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.arrow{font-size:34px;color:var(--tungsten);flex:none}
 
-.row{display:flex;gap:24px;margin-top:70px}
-.chip{background:var(--bg-2);border:1px solid var(--border-1);
-  border-radius:var(--radius-xl);padding:28px 34px;min-width:296px;text-align:left}
-.chip .n{font-size:18px;font-weight:600;letter-spacing:.12em;
-  background:var(--gradient-brand);-webkit-background-clip:text;
-  background-clip:text;color:transparent}
-.chip .t{font-size:36px;font-weight:700;margin-top:10px;letter-spacing:-.015em}
-.chip .d{font-size:21px;color:var(--fg-3);margin-top:8px}
-.chip.hl{border-color:rgba(124,92,255,.42);background:rgba(124,92,255,.09)}
+.stack{display:flex;flex-direction:column;gap:24px;margin-top:62px}
+.line{display:flex;align-items:center;gap:24px;font-size:36px;color:var(--bone)}
+.line .b{color:var(--tungsten);font-size:36px;font-family:var(--mono)}
 
-.stack{display:flex;flex-direction:column;gap:22px;margin-top:60px}
-.line{display:flex;align-items:center;gap:22px;font-size:34px;color:var(--fg-1)}
-.line .b{color:var(--success);font-size:34px}
+/* Code and reports go on paper — the same light table as the app. */
+.paper{background:var(--paper);color:var(--ink);border-radius:4px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+  padding:52px 64px;font-family:var(--mono);font-size:31px;line-height:1.66;
+  max-width:1460px;margin-top:56px;text-align:left}
+.paper .k{color:#A05A17;font-weight:700}
+.paper .r{color:#A3322A;font-weight:700}
+.paper .head{font-size:20px;letter-spacing:.22em;text-transform:uppercase;
+  color:#8B8272;border-bottom:1px solid #DCD3C0;padding-bottom:16px;margin-bottom:30px;
+  display:flex;justify-content:space-between}
 
-.quote{background:var(--bg-2);border:1px solid var(--border-1);
-  border-left:4px solid var(--warning);border-radius:var(--radius-lg);
-  padding:40px 48px;font-family:var(--font-mono);font-size:30px;line-height:1.62;
-  color:var(--fg-2);max-width:1500px;margin-top:58px;text-align:left}
-.quote .k{color:var(--warning)}
-.quote .c{color:var(--brand-violet)}
-
-.foot{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
-  font-size:25px;color:var(--fg-4);font-family:var(--font-mono);
+.foot{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);
+  font-size:24px;color:var(--faded);font-family:var(--mono);letter-spacing:.06em;
   white-space:nowrap;z-index:2}
+.foot b{color:var(--tungsten);font-weight:400}
 
-/* Entrance — opacity + translate only. Quiet ease, no overshoot, per the
-   design system's motion note. */
-.r{opacity:0;transform:translate3d(0,30px,0);
+/* Entrance — opacity + translate only, quiet ease, no overshoot. */
+.up{opacity:0;transform:translate3d(0,30px,0);
   animation:rise 1s var(--ease-out) forwards;will-change:transform,opacity}
 @keyframes rise{to{opacity:1;transform:translate3d(0,0,0)}}
 .d1{animation-delay:.12s}.d2{animation-delay:.36s}.d3{animation-delay:.60s}
 .d4{animation-delay:.84s}.d5{animation-delay:1.08s}.d6{animation-delay:1.32s}
-.foot.r{transform:translate3d(-50%,30px,0)}
+.foot.up{transform:translate3d(-50%,30px,0);animation-name:riseFoot}
 @keyframes riseFoot{to{opacity:1;transform:translate3d(-50%,0,0)}}
-.foot.r{animation-name:riseFoot}
 </style>
 </head>
 <body>
-<div class="stage"><div class="grid"></div><div class="inner" id="inner"></div></div>
+<div class="stage"><div class="grain"></div><div class="inner" id="inner"></div></div>
 <script>
-const LOGO = `<svg width="150" height="150" viewBox="0 0 80 80" fill="none">
-  <defs><linearGradient id="lg" x1="6" y1="6" x2="74" y2="74" gradientUnits="userSpaceOnUse">
-    <stop offset="0%" stop-color="#5B6CFF"/><stop offset="50%" stop-color="#7C5CFF"/>
-    <stop offset="100%" stop-color="#B14CFF"/></linearGradient></defs>
-  <path d="M14 8 H30 V58 H56 V72 H14 Z" fill="url(#lg)" opacity="0.55"/>
-  <path d="M22 16 H38 V64 H64 V78 H22 Z" fill="url(#lg)"/></svg>`;
+const LOGO = `<svg width="132" height="132" viewBox="0 0 32 32" fill="none">
+  <rect x="3" y="11" width="26" height="18" rx="2" fill="#E5A13B"/>
+  <path d="M3 11 L8 4 L14 9 L10 15 Z M14 9 L20 2 L26 7 L21 14 Z" fill="#E5A13B" opacity=".85"/>
+  <circle cx="16" cy="20" r="4.5" fill="#14120F"/>
+  <circle cx="16" cy="20" r="1.8" fill="#E5A13B"/></svg>`;
 
 const CARDS={
- c0:`<div class="logo r d1">${LOGO}</div>
-     <h1 class="r d2">CinemaForge</h1>
-     <div class="sub r d3">A content studio that decides what to make<br>from telemetry, not from a guess.</div>
-     <div class="foot r d5">Gemini &nbsp;·&nbsp; Agent Development Kit &nbsp;·&nbsp; Grafana Cloud MCP &nbsp;·&nbsp; Cloud Run</div>`,
+ c0:`<div class="logo up d1">${LOGO}</div>
+     <h1 class="up d2">CINEMA<span>FORGE</span></h1>
+     <div class="sub up d3">A studio that decides what to make<br>from telemetry, not from a guess.</div>
+     <div class="foot up d5">GEMINI &nbsp;·&nbsp; AGENT DEVELOPMENT KIT &nbsp;·&nbsp; GRAFANA CLOUD MCP &nbsp;·&nbsp; CLOUD RUN</div>`,
 
- c1:`<div class="kicker r d1">Sequential agent pipeline</div>
-     <h2 class="r d2">Four agents, one handoff chain</h2>
+ c1:`<div class="kicker up d1">The crew — sequential handoff</div>
+     <h2 class="up d2">Four agents. One chain.</h2>
      <div class="row">
-       <div class="chip hl r d3"><div class="n">01</div><div class="t">Analyst</div><div class="d">Queries Grafana via MCP</div></div>
-       <div class="chip r d4"><div class="n">02</div><div class="t">Writer</div><div class="d">Script from the brief</div></div>
-       <div class="chip r d5"><div class="n">03</div><div class="t">Director</div><div class="d">Shot list and thumbnail</div></div>
-       <div class="chip r d6"><div class="n">04</div><div class="t">SEO</div><div class="d">Title, tags, metadata</div></div>
+       <div class="chip hl up d3"><span class="tally"></span><div class="n">01</div><div class="t">Analyst</div><div class="d">Queries Grafana via MCP</div></div>
+       <div class="arrow up d4">→</div>
+       <div class="chip up d4"><span class="tally"></span><div class="n">02</div><div class="t">Writer</div><div class="d">Script from the brief</div></div>
+       <div class="arrow up d5">→</div>
+       <div class="chip up d5"><span class="tally"></span><div class="n">03</div><div class="t">Director</div><div class="d">Shot list and thumbnail</div></div>
+       <div class="arrow up d6">→</div>
+       <div class="chip up d6"><span class="tally"></span><div class="n">04</div><div class="t">SEO</div><div class="d">Title, tags, metadata</div></div>
      </div>`,
 
- c2:`<div class="kicker r d1">The grounding step</div>
-     <h2 class="r d2">The analyst runs live PromQL<br>before a word is written</h2>
-     <div class="quote r d4">
+ c2:`<div class="kicker up d1">The grounding step</div>
+     <h2 class="up d2">The analyst runs live PromQL<br>before a word is written</h2>
+     <div class="paper up d4">
+<div class="head"><span>CinemaForge · wire log</span><span>MCP</span></div>
 <span class="k">mcp-grafana</span> · stdio<br>
-<span class="c">query_prometheus</span>(datasource=<span class="k">"grafanacloud-prom"</span>)<br><br>
+<span class="k">query_prometheus</span>(datasource="grafanacloud-prom")<br><br>
 sum(productions_completed_total{topic="…"})<br>
 sum(agent_duration_seconds_sum) by (agent)</div>`,
 
- c3:`<div class="kicker r d1">The honesty guard</div>
-     <h2 class="r d2">When there is no data,<br>it says there is no data</h2>
-     <div class="quote r d4">
-"data_source": <span class="k">"unavailable"</span>,<br>
-"productions_recorded": <span class="k">0</span>,<br>
-"note": "There are NO historical performance<br>&nbsp;&nbsp;figures to cite <span class="k">- do not invent any.</span>"</div>
-     <div class="sub r d6" style="margin-top:44px;font-size:32px">Every figure in a brief traces to a query that actually ran.</div>`,
+ c3:`<div class="kicker up d1">The honesty guard</div>
+     <h2 class="up d2">When there is no data,<br>it says there is no data</h2>
+     <div class="paper up d4">
+<div class="head"><span>CinemaForge · analyst brief</span><span>Verbatim</span></div>
+"data_source": <span class="r">"unavailable"</span>,<br>
+"productions_recorded": <span class="r">0</span>,<br>
+"note": "There are NO historical performance<br>&nbsp;&nbsp;figures to cite <span class="r">- do not invent any.</span>"</div>
+     <div class="sub up d6" style="margin-top:46px;font-size:31px">Every figure in a brief traces to a query that actually ran.</div>`,
 
- c4:`<div class="kicker r d1">Closing the loop</div>
-     <h2 class="r d2">Every run measures itself</h2>
+ c4:`<div class="kicker up d1">Closing the loop</div>
+     <h2 class="up d2">Every run measures itself</h2>
      <div class="stack">
-       <div class="line r d3"><span class="b">→</span> OpenTelemetry metrics, tagged by topic</div>
-       <div class="line r d4"><span class="b">→</span> Straight into Grafana Cloud Prometheus</div>
-       <div class="line r d5"><span class="b">→</span> The next run queries them back through MCP</div>
+       <div class="line up d3"><span class="b">→</span> OpenTelemetry metrics, tagged by topic</div>
+       <div class="line up d4"><span class="b">→</span> Straight into Grafana Cloud Prometheus</div>
+       <div class="line up d5"><span class="b">→</span> The next run queries them back through MCP</div>
      </div>`,
 
- c5:`<div class="logo r d1">${LOGO}</div>
-     <h1 class="r d2">CinemaForge</h1>
-     <div class="sub r d3" style="margin-top:28px">Open source, Apache 2.0</div>
-     <div class="stack r d4" style="gap:14px;margin-top:42px">
-       <div class="line" style="font-family:var(--font-mono);font-size:29px;color:var(--fg-2)">github.com/downoff/cinemaforge</div>
-       <div class="line" style="font-family:var(--font-mono);font-size:29px;color:var(--fg-2)">cinemaforge-384599766402.us-central1.run.app</div>
+ c5:`<div class="logo up d1">${LOGO}</div>
+     <h1 class="up d2">CINEMA<span>FORGE</span></h1>
+     <div class="sub up d3" style="margin-top:30px">Open source, Apache 2.0</div>
+     <div class="stack up d4" style="gap:16px;margin-top:44px;align-items:center">
+       <div class="line" style="font-family:var(--mono);font-size:29px;color:var(--faded)">github.com/downoff/cinemaforge</div>
+       <div class="line" style="font-family:var(--mono);font-size:29px;color:var(--faded)">cinemaforge-384599766402.us-central1.run.app</div>
      </div>
-     <div class="foot r d6">Built for Agentic Cinema &nbsp;·&nbsp; Grafana track</div>`,
+     <div class="foot up d6">BUILT FOR <b>AGENTIC CINEMA</b> · GRAFANA TRACK</div>`,
 };
 const inner = document.getElementById('inner');
 inner.innerHTML = CARDS[new URLSearchParams(location.search).get('card')] || CARDS.c0;
 // .foot is position:absolute, but .inner carries a scale() animation, which
-// makes it the containing block — so bottom:80px resolved against .inner's
+// makes it the containing block — so bottom:78px resolved against .inner's
 // box and the footer landed on top of the subtitle. Reparent it to .stage.
 const foot = inner.querySelector('.foot');
 if (foot) document.querySelector('.stage').appendChild(foot);

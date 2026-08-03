@@ -1,0 +1,71 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,Archivo,40,&H00E8E2D6,&H00E8E2D6,&H00141210,&H96000000,0,0,0,0,100,100,0.4,0,1,1.6,0,2,140,140,52,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.40,0:00:04.00,Cap,,0,0,0,,Every content team makes the same decision blind.
+Dialogue: 0,0:00:04.00,0:00:05.70,Cap,,0,0,0,,What do we make next?
+Dialogue: 0,0:00:06.50,0:00:09.40,Cap,,0,0,0,,Most tools answer that with a guess.
+Dialogue: 0,0:00:09.40,0:00:11.30,Cap,,0,0,0,,Dressed up as a recommendation.
+Dialogue: 0,0:00:11.30,0:00:18.19,Cap,,0,0,0,,CinemaForge is a production studio built from four Gemini agents.
+Dialogue: 0,0:00:18.19,0:00:21.89,Cap,,0,0,0,,An analyst.
+Dialogue: 0,0:00:21.89,0:00:22.69,Cap,,0,0,0,,A writer.
+Dialogue: 0,0:00:22.69,0:00:23.50,Cap,,0,0,0,,A director.
+Dialogue: 0,0:00:23.50,0:00:24.50,Cap,,0,0,0,,And an SEO specialist.
+Dialogue: 0,0:00:24.50,0:00:26.00,Cap,,0,0,0,,They run in sequence.
+Dialogue: 0,0:00:26.00,0:00:29.69,Cap,,0,0,0,,Each one hands its work to the next.
+Dialogue: 0,0:00:30.89,0:00:33.60,Cap,,0,0,0,,The first agent is the one that matters.
+Dialogue: 0,0:00:33.60,0:00:38.70,Cap,,0,0,0,,Before a single word gets written, the analyst opens a
+Dialogue: 0,0:00:38.70,0:00:42.29,Cap,,0,0,0,,connection to the Grafana Cloud MCP server.
+Dialogue: 0,0:00:43.39,0:00:45.86,Cap,,0,0,0,,And it runs real PromQL.
+Dialogue: 0,0:00:45.86,0:00:51.39,Cap,,0,0,0,,Here is a production, starting from one line of brief.
+Dialogue: 0,0:00:51.39,0:00:54.00,Cap,,0,0,0,,The analyst queries first.
+Dialogue: 0,0:00:54.00,0:00:57.29,Cap,,0,0,0,,How many productions have we run on this topic.
+Dialogue: 0,0:00:57.29,0:00:58.70,Cap,,0,0,0,,How long did they take.
+Dialogue: 0,0:00:58.70,0:01:01.00,Cap,,0,0,0,,Which stages actually finished.
+Dialogue: 0,0:01:01.00,0:01:03.79,Cap,,0,0,0,,Those numbers come back from Grafana.
+Dialogue: 0,0:01:03.79,0:01:06.79,Cap,,0,0,0,,And they shape everything after.
+Dialogue: 0,0:01:06.79,0:01:10.00,Cap,,0,0,0,,Now watch what it does when there is no data.
+Dialogue: 0,0:01:10.00,0:01:15.40,Cap,,0,0,0,,On a new topic, the analyst reports: data source, unavailable.
+Dialogue: 0,0:01:15.40,0:01:17.90,Cap,,0,0,0,,Zero prior productions.
+Dialogue: 0,0:01:17.90,0:01:20.09,Cap,,0,0,0,,And it says so, in the brief.
+Dialogue: 0,0:01:21.29,0:01:24.50,Cap,,0,0,0,,It will not invent a retention figure to fill the
+Dialogue: 0,0:01:24.50,0:01:25.29,Cap,,0,0,0,,gap.
+Dialogue: 0,0:01:26.09,0:01:30.70,Cap,,0,0,0,,Then the writer takes that grounded brief and produces a
+Dialogue: 0,0:01:30.70,0:01:31.50,Cap,,0,0,0,,script.
+Dialogue: 0,0:01:31.50,0:01:34.20,Cap,,0,0,0,,The director turns it into a shot list.
+Dialogue: 0,0:01:34.20,0:01:36.00,Cap,,0,0,0,,Camera, lighting, thumbnail.
+Dialogue: 0,0:01:36.00,0:01:39.40,Cap,,0,0,0,,The SEO agent writes the metadata.
+Dialogue: 0,0:01:39.40,0:01:42.00,Cap,,0,0,0,,About sixty seconds, end to end.
+Dialogue: 0,0:01:42.00,0:01:43.79,Cap,,0,0,0,,Now the part that makes it a loop.
+Dialogue: 0,0:01:43.79,0:01:50.70,Cap,,0,0,0,,Every one of those runs emits OpenTelemetry metrics, straight back
+Dialogue: 0,0:01:50.70,0:01:52.00,Cap,,0,0,0,,into Grafana Cloud.
+Dialogue: 0,0:01:52.00,0:01:53.70,Cap,,0,0,0,,Tagged with the topic.
+Dialogue: 0,0:01:54.90,0:01:56.50,Cap,,0,0,0,,This is the real dashboard.
+Dialogue: 0,0:01:56.50,0:02:00.31,Cap,,0,0,0,,The analyst is the slowest agent, because it is the
+Dialogue: 0,0:02:00.31,0:02:02.42,Cap,,0,0,0,,one doing the Grafana queries.
+Dialogue: 0,0:02:02.42,0:02:08.02,Cap,,0,0,0,,That is a real measurement, of a real trade off.
+Dialogue: 0,0:02:08.02,0:02:11.81,Cap,,0,0,0,,So the next production on this topic queries these exact
+Dialogue: 0,0:02:11.81,0:02:14.41,Cap,,0,0,0,,numbers back, through MCP.
+Dialogue: 0,0:02:14.41,0:02:16.31,Cap,,0,0,0,,The studio measures itself.
+Dialogue: 0,0:02:16.31,0:02:19.81,Cap,,0,0,0,,And the measurement feeds the next run.
+Dialogue: 0,0:02:19.81,0:02:22.02,Cap,,0,0,0,,One thing I want to be straight about.
+Dialogue: 0,0:02:22.02,0:02:25.02,Cap,,0,0,0,,This reads the pipeline's own telemetry.
+Dialogue: 0,0:02:25.02,0:02:26.62,Cap,,0,0,0,,It has no viewership data.
+Dialogue: 0,0:02:26.62,0:02:30.28,Cap,,0,0,0,,No views, no click through rate, because no audience source
+Dialogue: 0,0:02:30.28,0:02:31.41,Cap,,0,0,0,,is wired in.
+Dialogue: 0,0:02:31.41,0:02:35.02,Cap,,0,0,0,,The agent is told to say that, rather than guess.
+Dialogue: 0,0:02:35.02,0:02:36.12,Cap,,0,0,0,,And it does.
+Dialogue: 0,0:02:36.12,0:02:38.81,Cap,,0,0,0,,CinemaForge.
+Dialogue: 0,0:02:38.81,0:02:44.02,Cap,,0,0,0,,Gemini, the Agent Development Kit, Grafana Cloud MCP, and OpenTelemetry.
+Dialogue: 0,0:02:44.02,0:02:46.21,Cap,,0,0,0,,Running on Cloud Run.
+Dialogue: 0,0:02:46.21,0:02:48.02,Cap,,0,0,0,,Apache 2.0.
+Dialogue: 0,0:02:48.02,0:02:49.21,Cap,,0,0,0,,Link is below.
