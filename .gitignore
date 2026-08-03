@@ -17,3 +17,12 @@ demo/clips/
 demo/work2/
 demo/deepqa/
 demo/qa2/
+demo/work3/
+
+# v3 narration. The master take is demo/vo3/narration_raw.m4a and IS tracked;
+# so are the transcripts and blocks.json, because they are what the edit and
+# the visual timing are keyed to. Every .wav under vo3/ is derived from those
+# by edit_vo.py and runs to ~89MB, so it rebuilds rather than ships.
+demo/vo3/*.wav
+demo/vo3/_parts/
+demo/vo3/probe/

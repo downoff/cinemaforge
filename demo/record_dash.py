@@ -11,21 +11,14 @@ import sys
 
 from playwright.sync_api import sync_playwright
 
+import blocks
+
 HERE = pathlib.Path(__file__).parent
-AUDIO = HERE / "audio"
 OUT = HERE / "clips"
 OUT.mkdir(exist_ok=True)
 
 # narration index -> css animation-delay so the two clips differ
 DASH = {7: "0s", 8: "-14s"}
-
-
-def dur(p: pathlib.Path) -> float:
-    r = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-         "-of", "csv=p=0", str(p)],
-        capture_output=True, text=True, check=True)
-    return float(r.stdout.strip())
 
 
 def main() -> None:
@@ -34,7 +27,7 @@ def main() -> None:
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--force-color-profile=srgb"])
         for idx, delay in DASH.items():
-            seconds = dur(AUDIO / f"vo_{idx:02d}.wav") + 0.45
+            seconds = blocks.duration(idx) + 1.0
             ctx = browser.new_context(
                 viewport={"width": 1920, "height": 1080},
                 record_video_dir=str(tmp),

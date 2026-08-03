@@ -6,17 +6,23 @@ license = "Apache-2.0"
 requires-python = ">=3.11"
 dependencies = [
     "google-adk[mcp]>=2.6",
-    "google-genai>=2.14",
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.34",
+    "google-genai>=2.16",
+    "fastapi>=0.141",
+    "uvicorn[standard]>=0.52",
     # ADK's mcp_toolset imports mcp.shared.session, which mcp 2.x removed.
     # ADK only bounds this under its [mcp] extra, so an unpinned `mcp>=1.0`
     # silently resolves to 2.x and the Grafana toolset disappears at runtime.
     "mcp>=1.24,<2",
     "mcp-grafana",
-    "opentelemetry-api>=1.42",
-    "opentelemetry-sdk>=1.42",
-    "opentelemetry-exporter-otlp-proto-http>=1.42",
+    # Held at 1.42.x on purpose. google-adk 2.6.1 declares
+    # opentelemetry-{api,sdk}<=1.42.1, so asking for anything newer makes the
+    # container build either fail to resolve or backtrack onto a different
+    # google-adk - and a different ADK may not expose the McpToolset shape
+    # agents.py depends on. 1.44 does run locally; the risk is the build, not
+    # the runtime. Raise these only when ADK raises its own ceiling.
+    "opentelemetry-api>=1.42,<1.43",
+    "opentelemetry-sdk>=1.42,<1.43",
+    "opentelemetry-exporter-otlp-proto-http>=1.42,<1.43",
     "python-dotenv>=1.0",
     "httpx>=0.28",
 ]

@@ -10,18 +10,27 @@
 html,body{background:var(--bg-1);width:1920px;height:1080px;overflow:hidden}
 .stage{position:relative;width:1920px;height:1080px;overflow:hidden;
   background:linear-gradient(180deg,#0a0f1a 0%,#0e1422 100%)}
-.shot{position:absolute;top:50%;left:50%;width:2040px;
+/* The source screenshot is only 1568x775. It was previously laid out at
+   2040px, which both upscaled it 1.3x and pushed 60px off each side before
+   the animation even started; the push then took ~116px. That cropped the
+   panel titles ("Latency per agent" read as "atency per agent") and, worse,
+   the agent names beside the bars - exactly what the narration points at
+   when it says the analyst is the slowest agent. Fit the frame instead.
+   1840 * 1.028 = 1891px wide, inside 1920, so nothing ever leaves frame. */
+.shot{position:absolute;top:50%;left:50%;width:1840px;
   transform:translate(-50%,-50%);
+  border:1px solid rgba(255,255,255,.08);border-radius:12px;
   box-shadow:0 24px 80px rgba(0,0,0,.6);
   animation:glide 30s cubic-bezier(.22,.61,.36,1) infinite alternate;
   will-change:transform}
 @keyframes glide{
-  0%  {transform:translate(-50.9%,-49.2%) scale(1.000)}
-  100%{transform:translate(-49.1%,-50.8%) scale(1.055)}
+  0%  {transform:translate(-50.4%,-49.7%) scale(1.000)}
+  100%{transform:translate(-49.6%,-50.3%) scale(1.028)}
 }
-/* Vignette keeps the eye centred and hides the crop edges */
+/* Vignette now only settles the eye; it no longer has crop edges to hide,
+   so it is lighter and starts further out to keep the panels legible. */
 .vig{position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(72% 64% at 50% 50%,transparent 42%,rgba(7,9,15,.55) 100%)}
+  background:radial-gradient(78% 70% at 50% 50%,transparent 58%,rgba(7,9,15,.42) 100%)}
 </style>
 </head>
 <body>
