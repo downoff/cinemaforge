@@ -192,9 +192,16 @@ def plan(segs):
         elif idx == 2:
             shots = [("card", "card_02", d)]
         elif idx == 3:
-            # the roll: click, leader, analyst tally — one unbroken take
-            s = ft(MAIN, MARKS_MAIN, "rolled", -2.8)
-            shots = [("app", (MAIN, s, None), d)]
+            # the roll: click and a beat of the leader — then cut to the
+            # analyst's brief landing, so "those numbers come back from
+            # Grafana" plays over the numbers, not over a countdown. (The
+            # first cut held the leader for the full 19s, and block 4 then
+            # opened on a second leader. Two dials in a row reads as filler.)
+            s = ft(MAIN, MARKS_MAIN, "rolled", -2.5)
+            t_brief = ft(MAIN, MARKS_MAIN, "analyst_out", 0.4)
+            d1 = min(8.0, d * 0.42)
+            shots = [("app", (MAIN, s, None), d1),
+                     ("app", (MAIN, t_brief, None), d - d1)]
         elif idx == 4:
             # fresh topic: type + roll, then punch in on the honest brief
             t_type = ft(FRESH, MARKS_FRESH, "settled", 0.3)
